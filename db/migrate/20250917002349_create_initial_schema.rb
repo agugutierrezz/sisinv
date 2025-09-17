@@ -21,7 +21,7 @@ class CreateInitialSchema < ActiveRecord::Migration[8.0]
       t.references :marca, null: false, foreign_key: { on_delete: :restrict }
       t.timestamps # created_at/updated_at
     end
-    add_index :modelos, [:marca_id, :nombre, :anio], unique: true, name: "index_modelos_on_marca_nombre_anio"
+    add_index :modelos, [ :marca_id, :nombre, :anio ], unique: true, name: "index_modelos_on_marca_nombre_anio"
 
     # ARTICULOS
     create_table :articulos do |t|
@@ -42,8 +42,8 @@ class CreateInitialSchema < ActiveRecord::Migration[8.0]
       t.text     :descripcion
       t.timestamps # created_at/updated_at
     end
-    add_index :transferencias, [:articulo_id, :fecha_inicio]
-    add_index :transferencias, [:persona_id,  :fecha_inicio]
+    add_index :transferencias, [ :articulo_id, :fecha_inicio ]
+    add_index :transferencias, [ :persona_id,  :fecha_inicio ]
 
     # Check: fecha_fin >= fecha_inicio (si hay fecha_fin)
     add_check_constraint :transferencias,

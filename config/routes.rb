@@ -19,5 +19,4 @@ Rails.application.routes.draw do
       resources :transfers
     end
   end
-  
 end

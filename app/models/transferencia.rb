@@ -3,6 +3,6 @@ class Transferencia < ApplicationRecord
 
   belongs_to :articulo
   belongs_to :persona
-  
+
   validates :fecha_inicio, presence: true
 end

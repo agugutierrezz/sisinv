@@ -102,7 +102,7 @@ def set_portador!(articulo:, persona:, descripcion: nil)
     if abierta
       abierta.update!(
         fecha_fin: Time.current,
-        descripcion: [abierta.descripcion, "(cerrada auto en seed)"].compact.join(" ")
+        descripcion: [ abierta.descripcion, "(cerrada auto en seed)" ].compact.join(" ")
       )
     end
     Transferencia.create!(
