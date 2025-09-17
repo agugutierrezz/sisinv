@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_17_005003) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_17_140812) do
   create_table "articulos", force: :cascade do |t|
     t.string "identificador", null: false
     t.date "fecha_ingreso", null: false
@@ -45,6 +45,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_17_005003) do
     t.string "apellido", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "archivado", default: false, null: false
+    t.index ["archivado"], name: "index_personas_on_archivado"
   end
 
   create_table "sessions", force: :cascade do |t|

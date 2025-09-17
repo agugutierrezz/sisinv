@@ -78,44 +78,61 @@ end
 a5 = Articulo.find_or_create_by!(identificador: "MBP14-005") do |a|
   a.fecha_ingreso    = Date.today - 5
   a.modelo           = m_mbp14_2021
-  a.persona_actual   = nil
+  a.persona_actual   = p8
 end
 
 a6 = Articulo.find_or_create_by!(identificador: "MBA13-006") do |a|
   a.fecha_ingreso  = Date.today - 3
   a.modelo         = m_mba13_2022
-  a.persona_actual = nil
+  a.persona_actual = p6
 end
 
 a7 = Articulo.find_or_create_by!(identificador: "HP-ELITE-007") do |a|
   a.fecha_ingreso  = Date.today - 2
   a.modelo         = m_eb840g9_2022
-  a.persona_actual = nil
+  a.persona_actual = p4
 end
 
-# Implemento la función para abrir una transferencia
-def abrir_transferencia!(articulo:, persona:, descripcion: nil)
-  # Cerrar la abierta (si existe)
+# Deja al artículo con 'persona' como portador actual; si ya lo es, no hace nada.
+def set_portador!(articulo:, persona:, descripcion: nil)
   abierta = Transferencia.find_by(articulo: articulo, fecha_fin: nil)
-  if abierta
-    abierta.update!(fecha_fin: Time.current, descripcion: [abierta.descripcion, "(cerrada auto en seed)"].compact.join(" "))
+  return if abierta&.persona_id == persona.id
+
+  Transferencia.transaction do
+    if abierta
+      abierta.update!(
+        fecha_fin: Time.current,
+        descripcion: [abierta.descripcion, "(cerrada auto en seed)"].compact.join(" ")
+      )
+    end
+    Transferencia.create!(
+      articulo: articulo,
+      persona: persona,
+      fecha_inicio: Time.current,
+      descripcion: descripcion
+    )
+    articulo.update!(persona_actual: persona)
   end
-  # Abrir nueva y actualizar portador actual
-  Transferencia.create!(
-    articulo: articulo,
-    persona: persona,
-    fecha_inicio: Time.current,
-    descripcion: descripcion
-  )
-  articulo.update!(persona_actual: persona)
 end
 
-# Crea al menos 2 movimientos
-abrir_transferencia!(articulo: a1, persona: p1, descripcion: "Asignación inicial")
-abrir_transferencia!(articulo: a2, persona: p2, descripcion: "Asignación inicial")
+# a1: solo una asignación inicial
+set_portador!(articulo: a1, persona: p1, descripcion: "Asignación inicial") if Transferencia.where(articulo: a1).none?
 
-# Un traspaso adicional para probar cierre/apertura
-abrir_transferencia!(articulo: a2, persona: p3, descripcion: "Reasignado a Carla")
+# a2: queremos historial p2 -> p3 SOLO la primera vez; luego aseguramos que quede p3
+if Transferencia.where(articulo: a2).none?
+  set_portador!(articulo: a2, persona: p2, descripcion: "Asignación inicial")
+  set_portador!(articulo: a2, persona: p3, descripcion: "Reasignado a Carla")
+else
+  set_portador!(articulo: a2, persona: p3)
+end
+
+# a3: queremos historial p8 -> p4 SOLO la primera vez; luego aseguramos que quede p4
+if Transferencia.where(articulo: a5).none?
+  set_portador!(articulo: a5, persona: p8, descripcion: "Asignación inicial")
+  set_portador!(articulo: a5, persona: p4, descripcion: "Reasignado a Juan")
+else
+  set_portador!(articulo: a5, persona: p4)
+end
 
 # Imprimo un resumen para comprobar que todo fue creado correctamente
 puts "\n== Resumen ==============================="
@@ -123,5 +140,5 @@ puts "Personas:       #{Persona.count}"         # Debe dar 8
 puts "Marcas:         #{Marca.count}"           # Debe dar 4
 puts "Modelos:        #{Modelo.count}"          # Debe dar 14
 puts "Artículos:      #{Articulo.count}"        # Debe dar 7
-puts "Transferencias: #{Transferencia.count}"   # Debe dar 3
+puts "Transferencias: #{Transferencia.count}"   # Debe dar 5
 puts "=========================================="
