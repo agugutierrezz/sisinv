@@ -27,6 +27,6 @@ RSpec.describe "API::V1::People#index archivado/filtros", type: :request do
 
     get "/api/v1/people", params: { nombre: "mar", apellido: "lop" }, headers: headers
     list = JSON.parse(response.body)["data"]
-    expect(list.map { |h| h["id"] }).to eq([p1.id])
+    expect(list.map { |h| h["id"] }).to eq([ p1.id ])
   end
 end

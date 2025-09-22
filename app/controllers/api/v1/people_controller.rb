@@ -9,48 +9,46 @@ class Api::V1::PeopleController < Api::V1::BaseController
         Persona.where(archivado: false)
       end
 
-      if params[:q].present?
-        q = normalize(params[:q])
-        scope = scope.where(
-          "#{unaccent_sql('personas.nombre')}   LIKE :q OR " \
-          "#{unaccent_sql('personas.apellido')} LIKE :q OR " \
-          "LOWER(personas.identificador)        LIKE :q",
-          q: "%#{q}%"
-        )
-      else
-        if params[:nombre].present?
-          scope = scope.where("#{unaccent_sql('personas.nombre')} LIKE ?", "%#{normalize(params[:nombre])}%")
-        end
-        if params[:apellido].present?
-          scope = scope.where("#{unaccent_sql('personas.apellido')} LIKE ?", "%#{normalize(params[:apellido])}%")
-        end
-        if params[:identificador].present?
-          scope = scope.where("LOWER(personas.identificador) LIKE ?", "%#{params[:identificador].to_s.downcase}%")
-        end
+    if params[:q].present?
+      q_norm     = normalize(params[:q])
+      like       = "%#{ActiveRecord::Base.sanitize_sql_like(q_norm)}%"
+      col_nombre = Arel.sql(unaccent_sql("personas.nombre"))
+      col_apell  = Arel.sql(unaccent_sql("personas.apellido"))
+
+      scope = scope.where("#{col_nombre} LIKE :q OR #{col_apell} LIKE :q", q: like)
+    else
+      if params[:nombre].present?
+        like = "%#{ActiveRecord::Base.sanitize_sql_like(normalize(params[:nombre]))}%"
+        scope = scope.where("#{Arel.sql(unaccent_sql('personas.nombre'))} LIKE ?", like)
       end
+      if params[:apellido].present?
+        like = "%#{ActiveRecord::Base.sanitize_sql_like(normalize(params[:apellido]))}%"
+        scope = scope.where("#{Arel.sql(unaccent_sql('personas.apellido'))} LIKE ?", like)
+      end
+    end
 
     list, page, per = paginate(scope.order(:apellido, :nombre))
     render json: {
-      data: list.as_json(only: [ :id, :nombre, :apellido, :identificador, :archivado ]),
+      data: list.as_json(only: [ :id, :nombre, :apellido, :archivado, :identificador ]),
       meta: { page:, per:, total: scope.count }
     }
   end
 
   def show
-    render json: @persona.as_json(only: [:id, :nombre, :apellido, :identificador, :archivado])
+    render json: @persona.as_json(only: [ :id, :nombre, :apellido, :identificador, :archivado ])
   end
 
   def create
     persona = Persona.new(persona_params)
     persona.save!
-    render json: persona.as_json(only: [:id, :nombre, :apellido, :identificador, :archivado]), status: :created
+    render json: persona.as_json(only: [ :id, :nombre, :apellido, :identificador, :archivado ]), status: :created
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages.join(", ") }, status: :unprocessable_entity
   end
 
   def update
     @persona.update!(persona_params)
-    render json: @persona.as_json(only: [:id, :nombre, :apellido, :identificador, :archivado])
+    render json: @persona.as_json(only: [ :id, :nombre, :apellido, :identificador, :archivado ])
   end
 
   def destroy

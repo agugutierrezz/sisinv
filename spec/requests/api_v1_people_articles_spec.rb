@@ -15,7 +15,7 @@ RSpec.describe "API::V1::People#articles", type: :request do
     create(:transferencia, articulo: art1, persona: p1, fecha_inicio: Date.today, fecha_fin: nil)
 
     # art2: lo tuvo p1 en el pasado (transferido a p2), y está archivado
-    art2 = create(:article, persona_actual: p2, modelo:, )
+    art2 = create(:article, persona_actual: p2, modelo:,)
     create(:transferencia, articulo: art2, persona: p1, fecha_inicio: Date.today - 7, fecha_fin: Date.today - 1)
     create(:transferencia, articulo: art2, persona: p2, fecha_inicio: Date.today - 1, fecha_fin: nil)
     art2.update!(activo: false)

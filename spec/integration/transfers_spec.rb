@@ -17,8 +17,8 @@ RSpec.describe 'api/v1/transfers', type: :request do
             descripcion:  { type: :string, nullable: true }
           },
           required: %w[articulo_id persona_id]
-        }},
-        required: ['transferencia']
+        } },
+        required: [ 'transferencia' ]
       }
       response '201', 'created' do
         let(:Authorization) { 'Bearer <token>' }

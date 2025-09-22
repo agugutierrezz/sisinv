@@ -52,7 +52,7 @@ Rails.application.routes.draw do
       resources :models,    except: [ :new, :edit ]
     end
   end
-  
-  mount Rswag::Ui::Engine => '/api-docs'
-  mount Rswag::Api::Engine => '/api-docs'
+
+  mount Rswag::Ui::Engine => "/api-docs"
+  mount Rswag::Api::Engine => "/api-docs"
 end

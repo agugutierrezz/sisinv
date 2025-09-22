@@ -41,7 +41,7 @@ RSpec.describe 'api/v1/models', type: :request do
             required: %w[nombre anio marca_id]
           }
         },
-        required: ['modelo']
+        required: [ 'modelo' ]
       }
 
       response '201', 'created' do
@@ -86,7 +86,7 @@ RSpec.describe 'api/v1/models', type: :request do
             required: %w[nombre anio marca_id]
           }
         },
-        required: ['modelo']
+        required: [ 'modelo' ]
       }
 
       response '200', 'ok' do

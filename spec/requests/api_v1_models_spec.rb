@@ -40,7 +40,7 @@ RSpec.describe "API::V1::Models", type: :request do
 
     it "filtra por q (nombre) y por anio" do
       get "/api/v1/models", params: { q: "air" }, headers: headers
-      expect(j["data"].map { |h| h["nombre"] }).to eq(["MacBook Air"])
+      expect(j["data"].map { |h| h["nombre"] }).to eq([ "MacBook Air" ])
 
       get "/api/v1/models", params: { anio: 2022 }, headers: headers
       expect(j["data"].map { |h| h["nombre"] }).to include("Swift 3")

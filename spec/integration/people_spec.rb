@@ -37,7 +37,7 @@ RSpec.describe 'api/v1/people', type: :request do
             required: %w[nombre apellido]
           }
         },
-        required: ['persona']
+        required: [ 'persona' ]
       }
 
       response '201', 'created' do
@@ -91,7 +91,7 @@ RSpec.describe 'api/v1/people', type: :request do
             }
           }
         },
-        required: ['persona']
+        required: [ 'persona' ]
       }
 
       response '200', 'ok' do

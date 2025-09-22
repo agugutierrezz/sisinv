@@ -30,10 +30,10 @@ RSpec.describe 'api/v1/brands', type: :request do
           marca: {
             type: :object,
             properties: { nombre: { type: :string } },
-            required: ['nombre']
+            required: [ 'nombre' ]
           }
         },
-        required: ['marca']
+        required: [ 'marca' ]
       }
 
       response '201', 'created' do
@@ -67,8 +67,8 @@ RSpec.describe 'api/v1/brands', type: :request do
       produces 'application/json'
       parameter name: :body, in: :body, schema: {
         type: :object,
-        properties: { marca: { type: :object, properties: { nombre: { type: :string } }, required: ['nombre'] } },
-        required: ['marca']
+        properties: { marca: { type: :object, properties: { nombre: { type: :string } }, required: [ 'nombre' ] } },
+        required: [ 'marca' ]
       }
 
       response '200', 'ok' do

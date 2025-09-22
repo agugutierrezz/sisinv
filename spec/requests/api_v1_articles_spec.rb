@@ -45,7 +45,7 @@ RSpec.describe "API::V1::Articles (auto-transfer)", type: :request do
     post "/api/v1/articles",
         params: { articulo: { identificador: ident, modelo_id: modelo.id, fecha_ingreso: ingreso } },
         headers: headers
-    art_id = json_body["id"] || json_body.dig("data","id")
+    art_id = json_body["id"] || json_body.dig("data", "id")
 
     # 2) Primera asignación desde edición (permitida) → fecha_inicio = Time.current
     put "/api/v1/articles/#{art_id}",

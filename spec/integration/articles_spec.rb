@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'swagger_helper'
 
 RSpec.describe 'api/v1/articles', type: :request do
@@ -53,7 +54,7 @@ RSpec.describe 'api/v1/articles', type: :request do
             required: %w[identificador fecha_ingreso]
           }
         },
-        required: ['articulo']
+        required: [ 'articulo' ]
       }
 
       response '201', 'created' do
@@ -127,7 +128,7 @@ RSpec.describe 'api/v1/articles', type: :request do
             }
           }
         },
-        required: ['articulo']
+        required: [ 'articulo' ]
       }
 
       response '200', 'ok (devuelve show)' do

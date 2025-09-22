@@ -18,7 +18,7 @@ RSpec.describe Persona, type: :model do
     it ".activos devuelve sólo no archivados" do
       p1 = create(:person)                 # archivado: false (default)
       p2 = create(:person, archivado: true)
-      expect(Persona.activos).to match_array([p1])
+      expect(Persona.activos).to match_array([ p1 ])
     end
   end
 

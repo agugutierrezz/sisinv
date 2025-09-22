@@ -56,9 +56,9 @@ group :development, :test do
   gem "shoulda-matchers", "~> 6.4"
 
   # API Swagger
-  gem 'rswag-api'
-  gem 'rswag-ui'
-  gem 'rswag-specs'
+  gem "rswag-api"
+  gem "rswag-ui"
+  gem "rswag-specs"
 end
 
 group :development do
