@@ -18,7 +18,6 @@ RSpec.describe 'api/v1/people', type: :request do
       parameter name: :apellido,  in: :query, required: false, schema: { type: :string,  example: 'Pérez' }
 
       response '200', 'ok' do
-        let(:Authorization) { 'Bearer <token>' }
         run_test!
       end
     end
@@ -45,13 +44,11 @@ RSpec.describe 'api/v1/people', type: :request do
       }
 
       response '201', 'created' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:body) { { persona: { nombre: 'Ana', apellido: 'Vivas', identificador: 'ID-0001' } } }
         run_test!
       end
 
       response '422', 'datos inválidos' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:body) { { persona: { nombre: '', apellido: '' } } }
         run_test!
       end
@@ -70,13 +67,11 @@ RSpec.describe 'api/v1/people', type: :request do
       produces 'application/json'
 
       response '200', 'ok' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         run_test!
       end
 
       response '404', 'no encontrada' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 9_999 }
         run_test!
       end
@@ -102,14 +97,12 @@ RSpec.describe 'api/v1/people', type: :request do
       }
 
       response '200', 'ok' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         let(:body) { { persona: { nombre: 'Ana', apellido: 'Vivas', identificador: 'ID-0002' } } }
         run_test!
       end
 
       response '404', 'no encontrada' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 9_999 }
         let(:body) { { persona: { nombre: 'X' } } }
         run_test!
@@ -121,13 +114,11 @@ RSpec.describe 'api/v1/people', type: :request do
       produces 'application/json'
 
       response '204', 'no content' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         run_test!
       end
 
       response '404', 'no encontrada' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 9_999 }
         run_test!
       end
@@ -148,13 +139,11 @@ RSpec.describe 'api/v1/people', type: :request do
       produces 'application/json'
 
       response '200', 'ok' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         run_test!
       end
 
       response '404', 'persona no encontrada' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 9_999 }
         run_test!
       end

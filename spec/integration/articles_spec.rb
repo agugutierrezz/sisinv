@@ -21,7 +21,6 @@ RSpec.describe 'api/v1/articles', type: :request do
       parameter name: :q,                  in: :query,  required: false, schema: { type: :string,  example: 'macbook' }
 
       response '200', 'ok' do
-        let(:Authorization) { 'Bearer <token>' }
         run_test!
       end
     end
@@ -61,7 +60,6 @@ RSpec.describe 'api/v1/articles', type: :request do
       }
 
       response '201', 'created' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:body) do
           {
             articulo: {
@@ -76,7 +74,6 @@ RSpec.describe 'api/v1/articles', type: :request do
       end
 
       response '422', 'datos inválidos (modelo/ marca inconsistentes o faltantes)' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:body) do
           {
             articulo: {
@@ -104,13 +101,11 @@ RSpec.describe 'api/v1/articles', type: :request do
       produces 'application/json'
 
       response '200', 'ok' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         run_test!
       end
 
       response '404', 'no encontrado' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 9_999 }
         run_test!
       end
@@ -138,21 +133,18 @@ RSpec.describe 'api/v1/articles', type: :request do
       }
 
       response '200', 'ok (devuelve show)' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         let(:body) { { articulo: { identificador: 'ART-9999' } } }
         run_test!
       end
 
       response '422', 'el artículo ya tiene portador (usar /transfers para cambiarlo)' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         let(:body) { { articulo: { persona_actual_id: 3 } } } # si ya tenía otro
         run_test!
       end
 
       response '404', 'no encontrado' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 9_999 }
         let(:body) { { articulo: { identificador: 'X' } } }
         run_test!
@@ -164,13 +156,11 @@ RSpec.describe 'api/v1/articles', type: :request do
       produces 'application/json'
 
       response '204', 'no content' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 1 }
         run_test!
       end
 
       response '404', 'no encontrado' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:id) { 9_999 }
         run_test!
       end

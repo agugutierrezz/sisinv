@@ -25,7 +25,6 @@ RSpec.describe 'api/v1/transfers', type: :request do
         required: [ 'transferencia' ]
       }
       response '201', 'created' do
-        let(:Authorization) { 'Bearer <token>' }
         let(:body) do
           { transferencia: { articulo_id: 1, persona_id: 1, fecha_inicio: '2025-09-22T12:00:00Z', descripcion: 'Entrega' } }
         end

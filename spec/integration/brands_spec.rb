@@ -13,7 +13,6 @@ RSpec.describe 'api/v1/brands', type: :request do
 
       response '200', 'ok' do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{user.api_token}" }
         before do
           b = create(:brand, nombre: 'Apple')
           m = create(:model, marca: b, nombre: 'MacBook', anio: 2024)
@@ -42,7 +41,6 @@ RSpec.describe 'api/v1/brands', type: :request do
 
       response '201', 'created' do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{user.api_token}" }
         let(:body) { { marca: { nombre: 'Dell' } } }
         run_test!
       end
@@ -62,7 +60,6 @@ RSpec.describe 'api/v1/brands', type: :request do
 
       response '200', 'ok' do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{user.api_token}" }
         let(:id) { create(:brand).id }
         run_test!
       end
@@ -80,7 +77,6 @@ RSpec.describe 'api/v1/brands', type: :request do
 
       response '200', 'ok' do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{user.api_token}" }
         let(:id) { create(:brand, nombre: 'Old').id }
         let(:body) { { marca: { nombre: 'New' } } }
         run_test!
@@ -93,7 +89,6 @@ RSpec.describe 'api/v1/brands', type: :request do
 
       response '204', 'no content' do
         let(:user) { create(:user) }
-        let(:Authorization) { "Bearer #{user.api_token}" }
         let(:id) { create(:brand).id }
         run_test!
       end
