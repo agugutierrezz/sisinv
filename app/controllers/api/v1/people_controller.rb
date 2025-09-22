@@ -7,8 +7,24 @@ class Api::V1::PeopleController < Api::V1::BaseController
     scope = scope.where(archivado: false) unless params.key?(:archivado)
 
     if params[:q].present?
-      q = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q].to_s.downcase)}%"
-      scope = scope.where("LOWER(personas.nombre) LIKE :q OR LOWER(personas.apellido) LIKE :q", q: q)
+      q_norm = ActiveRecord::Base.sanitize_sql_like(normalize(params[:q]))
+      like   = "%#{q_norm.downcase}%"
+
+      # Elegí operador según el adapter
+      is_pg  = ActiveRecord::Base.connection.adapter_name.to_s =~ /postgre/i
+      ident_predicate =
+        if is_pg
+          "personas.identificador ILIKE :like"
+        else
+          "LOWER(personas.identificador) LIKE :like"
+        end
+
+      scope = scope.where(
+        "#{Arel.sql(unaccent_sql('personas.nombre'))} LIKE :like
+        OR #{Arel.sql(unaccent_sql('personas.apellido'))} LIKE :like
+        OR #{ident_predicate}",
+        like: like
+      )
     end
 
     if params[:nombre].present?

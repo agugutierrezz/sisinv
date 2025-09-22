@@ -32,10 +32,11 @@ RSpec.describe "api/v1/people", type: :request do
         required: [ "persona" ]
       }
 
-      response "201", "created" do
-        let(:body) { { persona: { nombre: "Bruno", apellido: "Pérez" } } }
+        response "201", "created" do
+        let(:body) { { persona: { nombre: "Bruno", apellido: "Pérez", identificador: "ID-BRU-001" } } }
         run_test!
-      end
+        end
+
 
       response "422", "datos inválidos" do
         let(:body) { { persona: { nombre: "" } } }

@@ -3,8 +3,8 @@ require "swagger_helper"
 RSpec.describe "api/v1/transfers", type: :request do
   include_context "api_auth"
 
-  let!(:p1)    { Persona.create!(nombre: "Ana",   apellido: "García") }
-  let!(:p2)    { Persona.create!(nombre: "Bruno", apellido: "Pérez") }
+  let!(:p1)    { Persona.create!(nombre: "Ana",   apellido: "García", identificador: "ID-ANA-001") }
+  let!(:p2)    { Persona.create!(nombre: "Bruno", apellido: "Pérez",  identificador: "ID-BRU-001") }
   let!(:marca) { Marca.create!(nombre: "Lenovo") }
   let!(:modelo) { Modelo.create!(marca:, nombre: "ThinkPad T14", anio: 2023) }
   let!(:art)   { Articulo.create!(identificador: "T14-001", fecha_ingreso: Date.today, modelo:, persona_actual: p1) }
