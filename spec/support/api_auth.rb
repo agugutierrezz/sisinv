@@ -1,3 +1,5 @@
+require "rails_helper"
+
 RSpec.shared_context "api_auth" do
   let!(:api_user) do
     u = User.find_or_initialize_by(email_address: "api-rswag@example.com")

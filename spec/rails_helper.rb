@@ -25,3 +25,11 @@ Shoulda::Matchers.configure do |config|
     with.library :rails
   end
 end
+
+# Cargar helpers/contexts de support/
+Dir[Rails.root.join("spec/support/**/*.rb")].sort.each { |f| require f }
+
+RSpec.configure do |config|
+  # Ya que todos los integration specs son type: :request, inyectamos el contexto por defecto:
+  config.include_context "api_auth", type: :request
+end
