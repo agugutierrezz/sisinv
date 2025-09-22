@@ -3,6 +3,12 @@ require 'swagger_helper'
 RSpec.describe 'api/v1/articles', type: :request do
   include_context "api_auth"
   path '/api/v1/articles' do
+    # Agregar una sola vez por path:
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
+            description: "Bearer <api_token>"
+
+    # Este let usa el shared context "api_auth" que ya definimos en spec/support/api_auth.rb
+    let(:Authorization) { "Bearer #{api_user.api_token}" }
     get 'Lista artículos (activos) con filtros' do
       tags 'Articles'
       produces 'application/json'

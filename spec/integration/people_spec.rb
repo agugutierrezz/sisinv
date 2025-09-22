@@ -3,6 +3,9 @@ require 'swagger_helper'
 RSpec.describe 'api/v1/people', type: :request do
   include_context "api_auth"
   path '/api/v1/people' do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
+            description: "Bearer <api_token>"
+    let(:Authorization) { "Bearer #{api_user.api_token}" }
     get 'Lista personas' do
       tags 'People'
       produces 'application/json'
@@ -56,6 +59,9 @@ RSpec.describe 'api/v1/people', type: :request do
   end
 
   path '/api/v1/people/{id}' do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
+            description: "Bearer <api_token>"
+    let(:Authorization) { "Bearer #{api_user.api_token}" }
     parameter name: :id, in: :path, required: true, schema: { type: :integer }
     parameter name: :Authorization, in: :header, required: true, schema: { type: :string }
 
@@ -129,6 +135,9 @@ RSpec.describe 'api/v1/people', type: :request do
   end
 
   path '/api/v1/people/{id}/articles' do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
+            description: "Bearer <api_token>"
+    let(:Authorization) { "Bearer #{api_user.api_token}" }
     parameter name: :id, in: :path, required: true, schema: { type: :integer }
     parameter name: :Authorization, in: :header, required: true, schema: { type: :string }
     parameter name: :per,  in: :query, required: false, schema: { type: :integer, example: 12 }

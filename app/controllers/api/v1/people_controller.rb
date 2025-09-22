@@ -2,35 +2,31 @@ class Api::V1::PeopleController < Api::V1::BaseController
   before_action :set_persona, if: -> { params[:id].present? }
 
   def index
-    archivado = ActiveModel::Type::Boolean.new.cast(params[:archivado])
-    scope = Persona.where(archivado: archivado.nil? ? false : archivado)
+    scope = Persona.all
+    scope = scope.where(archivado: ActiveModel::Type::Boolean.new.cast(params[:archivado])) if params.key?(:archivado)
+    scope = scope.where(archivado: false) unless params.key?(:archivado)
 
     if params[:q].present?
       q = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q].to_s.downcase)}%"
-      scope = scope.where(
-        "LOWER(personas.nombre) LIKE :q OR LOWER(personas.apellido) LIKE :q OR LOWER(personas.identificador) LIKE :q",
-        q: q
-      )
+      scope = scope.where("LOWER(personas.nombre) LIKE :q OR LOWER(personas.apellido) LIKE :q", q: q)
     end
 
     if params[:nombre].present?
-      qn = "%#{ActiveRecord::Base.sanitize_sql_like(params[:nombre].to_s.downcase)}%"
-      scope = scope.where("LOWER(personas.nombre) LIKE ?", qn)
+      v = "%#{ActiveRecord::Base.sanitize_sql_like(params[:nombre].to_s.downcase)}%"
+      scope = scope.where("LOWER(personas.nombre) LIKE ?", v)
     end
 
     if params[:apellido].present?
-      qa = "%#{ActiveRecord::Base.sanitize_sql_like(params[:apellido].to_s.downcase)}%"
-      scope = scope.where("LOWER(personas.apellido) LIKE ?", qa)
+      v = "%#{ActiveRecord::Base.sanitize_sql_like(params[:apellido].to_s.downcase)}%"
+      scope = scope.where("LOWER(personas.apellido) LIKE ?", v)
     end
 
-    total = scope.count
-    list, page, per = paginate(scope.order("personas.apellido ASC, personas.nombre ASC"))
+    scope = scope.order("personas.apellido ASC, personas.nombre ASC")
+    list, page, per = paginate(scope)
 
     render json: {
-      data: list.map { |p|
-        { id: p.id, nombre: p.nombre, apellido: p.apellido, identificador: p.identificador, archivado: p.archivado }
-      },
-      meta: { page:, per:, total: total }
+      data: list.map { |p| p.slice(:id, :nombre, :apellido, :identificador, :archivado) },
+      meta: { page:, per:, total: scope.count }
     }
   end
 

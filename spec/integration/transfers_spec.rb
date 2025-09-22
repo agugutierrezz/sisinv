@@ -3,6 +3,9 @@ require 'swagger_helper'
 RSpec.describe 'api/v1/transfers', type: :request do
   include_context "api_auth"
   path '/api/v1/transfers' do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
+            description: "Bearer <api_token>"
+    let(:Authorization) { "Bearer #{api_user.api_token}" }
     post 'Crea transferencia' do
       tags 'Transfers'
       consumes 'application/json'
