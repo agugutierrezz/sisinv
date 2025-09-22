@@ -1,0 +1,645 @@
+---
+openapi: 3.0.1
+info:
+  title: Sis-Inv API V1
+  version: v1
+servers:
+- url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+- bearerAuth: []
+paths:
+  "/api/v1/articles":
+    get:
+      summary: Lista artículos (activos) con filtros
+      tags:
+      - Articles
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: per
+        in: query
+        required: false
+        schema:
+          type: integer
+          example: 12
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: marca_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: modelo_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: fecha_desde
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fecha_hasta
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: persona_actual_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+          example: macbook
+      responses:
+        '200':
+          description: ok
+    post:
+      summary: Crea artículo (permite crear/usar marca y modelo, y asignar persona
+        inicial)
+      tags:
+      - Articles
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+        '422':
+          description: datos inválidos (modelo/ marca inconsistentes o faltantes)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                articulo:
+                  type: object
+                  properties:
+                    identificador:
+                      type: string
+                      example: ART-0001
+                    fecha_ingreso:
+                      type: string
+                      format: date
+                      example: '2025-09-01'
+                    modelo_id:
+                      type: integer
+                      nullable: true
+                    marca_id:
+                      type: integer
+                      nullable: true
+                    marca_nombre:
+                      type: string
+                      nullable: true
+                      example: Apple
+                    modelo_nombre:
+                      type: string
+                      nullable: true
+                      example: MacBook Air
+                    modelo_anio:
+                      type: integer
+                      nullable: true
+                      example: 2024
+                    persona_actual_id:
+                      type: integer
+                      nullable: true
+                    persona_nombre:
+                      type: string
+                      nullable: true
+                    persona_apellido:
+                      type: string
+                      nullable: true
+                  required:
+                  - identificador
+                  - fecha_ingreso
+              required:
+              - articulo
+        required: true
+  "/api/v1/articles/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    - name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Muestra un artículo
+      tags:
+      - Articles
+      responses:
+        '200':
+          description: ok
+        '404':
+          description: no encontrado
+    put:
+      summary: Actualiza un artículo (cambia datos; primera asignación de persona
+        si estaba sin asignar)
+      tags:
+      - Articles
+      parameters: []
+      responses:
+        '200':
+          description: ok (devuelve show)
+        '422':
+          description: el artículo ya tiene portador (usar /transfers para cambiarlo)
+        '404':
+          description: no encontrado
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                articulo:
+                  type: object
+                  properties:
+                    identificador:
+                      type: string
+                      nullable: true
+                      example: ART-9999
+                    fecha_ingreso:
+                      type: string
+                      nullable: true
+                      format: date
+                      example: '2025-09-22'
+                    modelo_id:
+                      type: integer
+                      nullable: true
+                    marca_id:
+                      type: integer
+                      nullable: true
+                    persona_actual_id:
+                      type: integer
+                      nullable: true
+              required:
+              - articulo
+        required: true
+    delete:
+      summary: Elimina/archiva un artículo (si tuvo uso, se desasigna y se inactiva;
+        si no, se borra)
+      tags:
+      - Articles
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: no encontrado
+  "/api/v1/brands":
+    get:
+      summary: Lista marcas
+      tags:
+      - Brands
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          description: ok
+    post:
+      summary: Crea marca
+      tags:
+      - Brands
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+        required: true
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marca:
+                  type: object
+                  properties:
+                    nombre:
+                      type: string
+                  required:
+                  - nombre
+              required:
+              - marca
+  "/api/v1/brands/{id}":
+    parameters:
+    - name: id
+      in: path
+      schema:
+        type: integer
+      required: true
+    - name: Authorization
+      in: header
+      schema:
+        type: string
+      required: true
+    get:
+      summary: Muestra marca
+      tags:
+      - Brands
+      responses:
+        '200':
+          description: ok
+    put:
+      summary: Actualiza marca
+      tags:
+      - Brands
+      parameters: []
+      responses:
+        '200':
+          description: ok
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marca:
+                  type: object
+                  properties:
+                    nombre:
+                      type: string
+                  required:
+                  - nombre
+              required:
+              - marca
+    delete:
+      summary: Borra marca
+      tags:
+      - Brands
+      responses:
+        '204':
+          description: no content
+  "/api/v1/models":
+    get:
+      summary: Lista modelos
+      tags:
+      - Models
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+        required: true
+      - name: marca_id
+        in: query
+        schema:
+          type: integer
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+        required: false
+      - name: anio
+        in: query
+        schema:
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: ok
+    post:
+      summary: Crea modelo
+      tags:
+      - Models
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+        required: true
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                modelo:
+                  type: object
+                  properties:
+                    nombre:
+                      type: string
+                    anio:
+                      type: integer
+                    marca_id:
+                      type: integer
+                  required:
+                  - nombre
+                  - anio
+                  - marca_id
+              required:
+              - modelo
+  "/api/v1/models/{id}":
+    parameters:
+    - name: id
+      in: path
+      schema:
+        type: integer
+      required: true
+    - name: Authorization
+      in: header
+      schema:
+        type: string
+      required: true
+    get:
+      summary: Muestra modelo
+      tags:
+      - Models
+      responses:
+        '200':
+          description: ok
+    put:
+      summary: Actualiza modelo
+      tags:
+      - Models
+      parameters: []
+      responses:
+        '200':
+          description: ok
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                modelo:
+                  type: object
+                  properties:
+                    nombre:
+                      type: string
+                    anio:
+                      type: integer
+                    marca_id:
+                      type: integer
+                  required:
+                  - nombre
+                  - anio
+                  - marca_id
+              required:
+              - modelo
+    delete:
+      summary: Borra modelo
+      tags:
+      - Models
+      responses:
+        '204':
+          description: no content
+  "/api/v1/people":
+    get:
+      summary: Lista personas
+      tags:
+      - People
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: per
+        in: query
+        required: false
+        schema:
+          type: integer
+          example: 12
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: archivado
+        in: query
+        required: false
+        schema:
+          type: boolean
+          example: false
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+          example: gonza
+      - name: nombre
+        in: query
+        required: false
+        schema:
+          type: string
+          example: Gonzalo
+      - name: apellido
+        in: query
+        required: false
+        schema:
+          type: string
+          example: Pérez
+      responses:
+        '200':
+          description: ok
+    post:
+      summary: Crea persona
+      tags:
+      - People
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+        '422':
+          description: datos inválidos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                persona:
+                  type: object
+                  properties:
+                    nombre:
+                      type: string
+                      example: Ana
+                    apellido:
+                      type: string
+                      example: Vivas
+                    identificador:
+                      type: string
+                      example: ID-0001
+                  required:
+                  - nombre
+                  - apellido
+              required:
+              - persona
+        required: true
+  "/api/v1/people/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    - name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Muestra persona
+      tags:
+      - People
+      responses:
+        '200':
+          description: ok
+        '404':
+          description: no encontrada
+    put:
+      summary: Actualiza persona
+      tags:
+      - People
+      parameters: []
+      responses:
+        '200':
+          description: ok
+        '404':
+          description: no encontrada
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                persona:
+                  type: object
+                  properties:
+                    nombre:
+                      type: string
+                      example: Ana
+                    apellido:
+                      type: string
+                      example: Vivas
+                    identificador:
+                      type: string
+                      example: ID-0002
+              required:
+              - persona
+        required: true
+    delete:
+      summary: Elimina/archiva persona
+      tags:
+      - People
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: no encontrada
+  "/api/v1/people/{id}/articles":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    - name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+    - name: per
+      in: query
+      required: false
+      schema:
+        type: integer
+        example: 12
+    - name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        example: 1
+    get:
+      summary: Historial de artículos (tuvo o tiene)
+      tags:
+      - People
+      responses:
+        '200':
+          description: ok
+        '404':
+          description: persona no encontrada
+  "/api/v1/transfers":
+    post:
+      summary: Crea transferencia
+      tags:
+      - Transfers
+      parameters:
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+        required: true
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transferencia:
+                  type: object
+                  properties:
+                    articulo_id:
+                      type: integer
+                    persona_id:
+                      type: integer
+                    fecha_inicio:
+                      type: string
+                      format: date_time
+                      nullable: true
+                    descripcion:
+                      type: string
+                      nullable: true
+                  required:
+                  - articulo_id
+                  - persona_id
+              required:
+              - transferencia
