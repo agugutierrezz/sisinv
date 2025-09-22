@@ -2,31 +2,44 @@ class Api::V1::PeopleController < Api::V1::BaseController
   before_action :set_persona, if: -> { params[:id].present? }
 
   def index
-    scope = if params[:archivado].nil?
-              Persona.where(archivado: false)
-    else
-              Persona.where(archivado: ActiveModel::Type::Boolean.new.cast(params[:archivado]))
-    end
+    scope = Persona.all
+    scope = scope.where(archivado: ActiveModel::Type::Boolean.new.cast(params[:archivado])) if params.key?(:archivado)
+    scope = scope.where(archivado: false) unless params.key?(:archivado)
 
     if params[:q].present?
-      # normalizá y parametrizá
-      q_norm = ActiveRecord::Base.sanitize_sql_like(normalize(params[:q]).to_s.downcase)
-      like   = "%#{q_norm}%"
-      t      = Persona.arel_table
+      q_norm = ActiveRecord::Base.sanitize_sql_like(normalize(params[:q]))
+      like   = "%#{q_norm.downcase}%"
 
-      # LOWER(col) LIKE :like (sin ILIKE, sin Arel.sql)
-      lower_nombre = Arel::Nodes::NamedFunction.new("LOWER", [ t[:nombre] ])
-      lower_apell  = Arel::Nodes::NamedFunction.new("LOWER", [ t[:apellido] ])
-      lower_ident  = Arel::Nodes::NamedFunction.new("LOWER", [ t[:identificador] ])
+      # Elegí operador según el adapter
+      is_pg  = ActiveRecord::Base.connection.adapter_name.to_s =~ /postgre/i
+      ident_predicate =
+        if is_pg
+          "personas.identificador ILIKE :like"
+        else
+          "LOWER(personas.identificador) LIKE :like"
+        end
 
-      cond = lower_nombre.matches(like)
-              .or(lower_apell.matches(like))
-              .or(lower_ident.matches(like))
-
-      scope = scope.where(cond)
+      scope = scope.where(
+        "#{Arel.sql(unaccent_sql('personas.nombre'))} LIKE :like
+        OR #{Arel.sql(unaccent_sql('personas.apellido'))} LIKE :like
+        OR #{ident_predicate}",
+        like: like
+      )
     end
 
-    list, page, per = paginate(scope.order(apellido: :asc, nombre: :asc))
+    if params[:nombre].present?
+      v = "%#{ActiveRecord::Base.sanitize_sql_like(params[:nombre].to_s.downcase)}%"
+      scope = scope.where("LOWER(personas.nombre) LIKE ?", v)
+    end
+
+    if params[:apellido].present?
+      v = "%#{ActiveRecord::Base.sanitize_sql_like(params[:apellido].to_s.downcase)}%"
+      scope = scope.where("LOWER(personas.apellido) LIKE ?", v)
+    end
+
+    scope = scope.order("personas.apellido ASC, personas.nombre ASC")
+    list, page, per = paginate(scope)
+
     render json: {
       data: list.map { |p| p.slice(:id, :nombre, :apellido, :identificador, :archivado) },
       meta: { page:, per:, total: scope.count }
