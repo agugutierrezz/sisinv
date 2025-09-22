@@ -13,6 +13,10 @@
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
+/coverage/*
+/storage/*.sqlite3*
+/public/assets
+.byebug_history
 !/log/.keep
 !/tmp/.keep
 
@@ -32,3 +36,6 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+.DS_Store
+*.swp
