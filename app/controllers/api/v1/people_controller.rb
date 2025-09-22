@@ -4,9 +4,9 @@ class Api::V1::PeopleController < Api::V1::BaseController
   def index
     scope = if params[:archivado].nil?
               Persona.where(archivado: false)
-            else
+    else
               Persona.where(archivado: ActiveModel::Type::Boolean.new.cast(params[:archivado]))
-            end
+    end
 
     if params[:q].present?
       # normalizá y parametrizá
@@ -15,9 +15,9 @@ class Api::V1::PeopleController < Api::V1::BaseController
       t      = Persona.arel_table
 
       # LOWER(col) LIKE :like (sin ILIKE, sin Arel.sql)
-      lower_nombre = Arel::Nodes::NamedFunction.new("LOWER", [t[:nombre]])
-      lower_apell  = Arel::Nodes::NamedFunction.new("LOWER", [t[:apellido]])
-      lower_ident  = Arel::Nodes::NamedFunction.new("LOWER", [t[:identificador]])
+      lower_nombre = Arel::Nodes::NamedFunction.new("LOWER", [ t[:nombre] ])
+      lower_apell  = Arel::Nodes::NamedFunction.new("LOWER", [ t[:apellido] ])
+      lower_ident  = Arel::Nodes::NamedFunction.new("LOWER", [ t[:identificador] ])
 
       cond = lower_nombre.matches(like)
               .or(lower_apell.matches(like))
