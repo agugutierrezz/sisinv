@@ -1,6 +1,7 @@
 require 'swagger_helper'
 
 RSpec.describe 'api/v1/models', type: :request do
+  include_context "api_auth"
   path '/api/v1/models' do
     get 'Lista modelos' do
       tags 'Models'

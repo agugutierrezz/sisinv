@@ -2,35 +2,35 @@ class Api::V1::PeopleController < Api::V1::BaseController
   before_action :set_persona, if: -> { params[:id].present? }
 
   def index
-    scope =
-      if params.key?(:archivado)
-        Persona.where(archivado: ActiveModel::Type::Boolean.new.cast(params[:archivado]))
-      else
-        Persona.where(archivado: false)
-      end
+    archivado = ActiveModel::Type::Boolean.new.cast(params[:archivado])
+    scope = Persona.where(archivado: archivado.nil? ? false : archivado)
 
     if params[:q].present?
-      q_norm     = normalize(params[:q])
-      like       = "%#{ActiveRecord::Base.sanitize_sql_like(q_norm)}%"
-      col_nombre = Arel.sql(unaccent_sql("personas.nombre"))
-      col_apell  = Arel.sql(unaccent_sql("personas.apellido"))
-
-      scope = scope.where("#{col_nombre} LIKE :q OR #{col_apell} LIKE :q", q: like)
-    else
-      if params[:nombre].present?
-        like = "%#{ActiveRecord::Base.sanitize_sql_like(normalize(params[:nombre]))}%"
-        scope = scope.where("#{Arel.sql(unaccent_sql('personas.nombre'))} LIKE ?", like)
-      end
-      if params[:apellido].present?
-        like = "%#{ActiveRecord::Base.sanitize_sql_like(normalize(params[:apellido]))}%"
-        scope = scope.where("#{Arel.sql(unaccent_sql('personas.apellido'))} LIKE ?", like)
-      end
+      q = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q].to_s.downcase)}%"
+      scope = scope.where(
+        "LOWER(personas.nombre) LIKE :q OR LOWER(personas.apellido) LIKE :q OR LOWER(personas.identificador) LIKE :q",
+        q: q
+      )
     end
 
-    list, page, per = paginate(scope.order(:apellido, :nombre))
+    if params[:nombre].present?
+      qn = "%#{ActiveRecord::Base.sanitize_sql_like(params[:nombre].to_s.downcase)}%"
+      scope = scope.where("LOWER(personas.nombre) LIKE ?", qn)
+    end
+
+    if params[:apellido].present?
+      qa = "%#{ActiveRecord::Base.sanitize_sql_like(params[:apellido].to_s.downcase)}%"
+      scope = scope.where("LOWER(personas.apellido) LIKE ?", qa)
+    end
+
+    total = scope.count
+    list, page, per = paginate(scope.order("personas.apellido ASC, personas.nombre ASC"))
+
     render json: {
-      data: list.as_json(only: [ :id, :nombre, :apellido, :archivado, :identificador ]),
-      meta: { page:, per:, total: scope.count }
+      data: list.map { |p|
+        { id: p.id, nombre: p.nombre, apellido: p.apellido, identificador: p.identificador, archivado: p.archivado }
+      },
+      meta: { page:, per:, total: total }
     }
   end
 

@@ -1,8 +1,7 @@
-# frozen_string_literal: true
-
 require 'swagger_helper'
 
 RSpec.describe 'api/v1/articles', type: :request do
+  include_context "api_auth"
   path '/api/v1/articles' do
     get 'Lista artículos (activos) con filtros' do
       tags 'Articles'

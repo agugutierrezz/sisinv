@@ -1,6 +1,7 @@
 require 'swagger_helper'
 
 RSpec.describe 'api/v1/transfers', type: :request do
+  include_context "api_auth"
   path '/api/v1/transfers' do
     post 'Crea transferencia' do
       tags 'Transfers'

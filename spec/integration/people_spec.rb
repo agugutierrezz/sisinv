@@ -1,6 +1,7 @@
 require 'swagger_helper'
 
 RSpec.describe 'api/v1/people', type: :request do
+  include_context "api_auth"
   path '/api/v1/people' do
     get 'Lista personas' do
       tags 'People'
