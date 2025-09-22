@@ -5,91 +5,93 @@ on:
   push:
     branches: [ main ]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
 
   scan_js:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
   test:
     runs-on: ubuntu-latest
-
-    # services:
-    #  redis:
-    #    image: redis
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      RAILS_ENV: test
     steps:
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      # Si algún día agregás system specs con Capybara+Selenium,
+      # esto instala Chrome estable en el runner:
+      - name: Setup Chrome (for future system specs)
+        uses: browser-actions/setup-chrome@v1
+
       - name: Prepare DB
         run: |
-          bin/rails db:prepare
-          RAILS_ENV=test bin/rails db:prepare
+          bundle exec rails db:prepare
+          RAILS_ENV=test bundle exec rails db:prepare
 
-      - name: Run tests
-        env:
-          RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test test:system
+      - name: Run RSpec
+        run: bundle exec rspec --format progress
 
-      - name: Keep screenshots from failed system tests
+      - name: Upload coverage
+        if: always()
         uses: actions/upload-artifact@v4
-        if: failure()
         with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
+          name: coverage
+          path: coverage/
           if-no-files-found: ignore
+
+  # Opcional: validar/generar el OpenAPI con RSwag y adjuntar el YAML
+  swagger:
+    runs-on: ubuntu-latest
+    needs: [test]  # genera docs solo si los tests pasan
+    env:
+      RAILS_ENV: test
+      RSWAG_DRY_RUN: "1"  # evita ejecutar lógica y que SimpleCov ensucie coverage
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Generate Swagger (OpenAPI)
+        run: bundle exec rake rswag
+      - name: Upload swagger.yaml
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-v1
+          path: swagger/v1/swagger.yaml
