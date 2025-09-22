@@ -1,32 +1,41 @@
-require 'swagger_helper'
+require "swagger_helper"
 
-RSpec.describe 'api/v1/transfers', type: :request do
+RSpec.describe "api/v1/transfers", type: :request do
   include_context "api_auth"
-  path '/api/v1/transfers' do
-    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
-            description: "Bearer <api_token>"
+
+  let!(:p1)    { Persona.create!(nombre: "Ana",   apellido: "García") }
+  let!(:p2)    { Persona.create!(nombre: "Bruno", apellido: "Pérez") }
+  let!(:marca) { Marca.create!(nombre: "Lenovo") }
+  let!(:modelo) { Modelo.create!(marca:, nombre: "ThinkPad T14", anio: 2023) }
+  let!(:art)   { Articulo.create!(identificador: "T14-001", fecha_ingreso: Date.today, modelo:, persona_actual: p1) }
+
+  path "/api/v1/transfers" do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true
     let(:Authorization) { "Bearer #{api_user.api_token}" }
-    post 'Crea transferencia' do
-      tags 'Transfers'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :Authorization, in: :header, schema: { type: :string }, required: true
-      parameter name: :body, in: :body, schema: {
-        type: :object, properties: { transferencia: {
-          type: :object,
-          properties: {
-            articulo_id:  { type: :integer },
-            persona_id:   { type: :integer },
-            fecha_inicio: { type: :string, format: :date_time, nullable: true },
-            descripcion:  { type: :string, nullable: true }
-          },
-          required: %w[articulo_id persona_id]
-        } },
-        required: [ 'transferencia' ]
+
+    post "Crear transferencia" do
+      tags "Transfers"
+      consumes "application/json"
+      produces "application/json"
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :object,
+        properties: {
+          transferencia: {
+            type: :object,
+            properties: {
+              articulo_id:  { type: :integer },
+              persona_id:   { type: :integer },
+              fecha_inicio: { type: :string, format: :date }
+            },
+            required: %w[articulo_id persona_id fecha_inicio]
+          }
+        },
+        required: [ "transferencia" ]
       }
-      response '201', 'created' do
+
+      response "201", "created" do
         let(:body) do
-          { transferencia: { articulo_id: 1, persona_id: 1, fecha_inicio: '2025-09-22T12:00:00Z', descripcion: 'Entrega' } }
+          { transferencia: { articulo_id: art.id, persona_id: p2.id, fecha_inicio: Date.today.to_s } }
         end
         run_test!
       end

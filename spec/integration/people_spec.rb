@@ -1,149 +1,123 @@
-require 'swagger_helper'
+require "swagger_helper"
 
-RSpec.describe 'api/v1/people', type: :request do
+RSpec.describe "api/v1/people", type: :request do
   include_context "api_auth"
-  path '/api/v1/people' do
-    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
-            description: "Bearer <api_token>"
-    let(:Authorization) { "Bearer #{api_user.api_token}" }
-    get 'Lista personas' do
-      tags 'People'
-      produces 'application/json'
-      parameter name: :Authorization, in: :header, required: true, schema: { type: :string }
-      parameter name: :per,       in: :query, required: false, schema: { type: :integer, example: 12 }
-      parameter name: :page,      in: :query, required: false, schema: { type: :integer, example: 1 }
-      parameter name: :archivado, in: :query, required: false, schema: { type: :boolean, example: false }
-      parameter name: :q,         in: :query, required: false, schema: { type: :string,  example: 'gonza' }
-      parameter name: :nombre,    in: :query, required: false, schema: { type: :string,  example: 'Gonzalo' }
-      parameter name: :apellido,  in: :query, required: false, schema: { type: :string,  example: 'Pérez' }
 
-      response '200', 'ok' do
+  let!(:persona) { Persona.create!(nombre: "Ana", apellido: "García", identificador: "ID-00112233") }
+  let!(:marca)   { Marca.create!(nombre: "Apple") }
+  let!(:modelo)  { Modelo.create!(marca:, nombre: "MacBook Air", anio: 2024) }
+  let!(:articulo_asignado) do
+    Articulo.create!(identificador: "ART-P1", fecha_ingreso: Date.today, modelo:, persona_actual: persona)
+  end
+
+  path "/api/v1/people" do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true
+    let(:Authorization) { "Bearer #{api_user.api_token}" }
+
+    get "Lista personas" do
+      tags "People"
+      produces "application/json"
+      response "200", "ok" do
         run_test!
       end
     end
 
-    post 'Crea persona' do
-      tags 'People'
-      consumes 'application/json'
-      produces 'application/json'
-      parameter name: :Authorization, in: :header, required: true, schema: { type: :string }
+    post "Crear persona" do
+      tags "People"
+      consumes "application/json"
+      produces "application/json"
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
-        properties: {
-          persona: {
-            type: :object,
-            properties: {
-              nombre:        { type: :string, example: 'Ana' },
-              apellido:      { type: :string, example: 'Vivas' },
-              identificador: { type: :string, example: 'ID-0001' }
-            },
-            required: %w[nombre apellido]
-          }
-        },
-        required: [ 'persona' ]
+        properties: { persona: { type: :object } },
+        required: [ "persona" ]
       }
 
-      response '201', 'created' do
-        let(:body) { { persona: { nombre: 'Ana', apellido: 'Vivas', identificador: 'ID-0001' } } }
+      response "201", "created" do
+        let(:body) { { persona: { nombre: "Bruno", apellido: "Pérez" } } }
         run_test!
       end
 
-      response '422', 'datos inválidos' do
-        let(:body) { { persona: { nombre: '', apellido: '' } } }
+      response "422", "datos inválidos" do
+        let(:body) { { persona: { nombre: "" } } }
         run_test!
       end
     end
   end
 
-  path '/api/v1/people/{id}' do
-    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
-            description: "Bearer <api_token>"
+  path "/api/v1/people/{id}" do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true
     let(:Authorization) { "Bearer #{api_user.api_token}" }
     parameter name: :id, in: :path, required: true, schema: { type: :integer }
-    parameter name: :Authorization, in: :header, required: true, schema: { type: :string }
 
-    get 'Muestra persona' do
-      tags 'People'
-      produces 'application/json'
+    get "Mostrar persona" do
+      tags "People"
+      produces "application/json"
 
-      response '200', 'ok' do
-        let(:id) { 1 }
+      response "200", "ok" do
+        let(:id) { persona.id }
         run_test!
       end
 
-      response '404', 'no encontrada' do
+      response "404", "no encontrada" do
         let(:id) { 9_999 }
         run_test!
       end
     end
 
-    put 'Actualiza persona' do
-      tags 'People'
-      consumes 'application/json'
-      produces 'application/json'
+    put "Actualizar persona" do
+      tags "People"
+      consumes "application/json"
+      produces "application/json"
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
-        properties: {
-          persona: {
-            type: :object,
-            properties: {
-              nombre:        { type: :string, example: 'Ana' },
-              apellido:      { type: :string, example: 'Vivas' },
-              identificador: { type: :string, example: 'ID-0002' }
-            }
-          }
-        },
-        required: [ 'persona' ]
+        properties: { persona: { type: :object } },
+        required: [ "persona" ]
       }
 
-      response '200', 'ok' do
-        let(:id) { 1 }
-        let(:body) { { persona: { nombre: 'Ana', apellido: 'Vivas', identificador: 'ID-0002' } } }
+      response "200", "ok" do
+        let(:id)   { persona.id }
+        let(:body) { { persona: { nombre: "Ana María" } } }
         run_test!
       end
 
-      response '404', 'no encontrada' do
-        let(:id) { 9_999 }
-        let(:body) { { persona: { nombre: 'X' } } }
+      response "404", "no encontrada" do
+        let(:id)   { 9_999 }
+        let(:body) { { persona: { nombre: "X" } } }
         run_test!
       end
     end
 
-    delete 'Elimina/archiva persona' do
-      tags 'People'
-      produces 'application/json'
+    delete "Eliminar persona" do
+      tags "People"
+      produces "application/json"
 
-      response '204', 'no content' do
-        let(:id) { 1 }
+      response "204", "no content" do
+        let(:id) { persona.id }
         run_test!
       end
 
-      response '404', 'no encontrada' do
+      response "404", "no encontrada" do
         let(:id) { 9_999 }
         run_test!
       end
     end
   end
 
-  path '/api/v1/people/{id}/articles' do
-    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true,
-            description: "Bearer <api_token>"
+  path "/api/v1/people/{id}/articles" do
+    parameter name: "Authorization", in: :header, schema: { type: :string }, required: true
     let(:Authorization) { "Bearer #{api_user.api_token}" }
     parameter name: :id, in: :path, required: true, schema: { type: :integer }
-    parameter name: :Authorization, in: :header, required: true, schema: { type: :string }
-    parameter name: :per,  in: :query, required: false, schema: { type: :integer, example: 12 }
-    parameter name: :page, in: :query, required: false, schema: { type: :integer, example: 1 }
 
-    get 'Historial de artículos (tuvo o tiene)' do
-      tags 'People'
-      produces 'application/json'
+    get "Artículos de una persona" do
+      tags "People"
+      produces "application/json"
 
-      response '200', 'ok' do
-        let(:id) { 1 }
+      response "200", "ok" do
+        let(:id) { persona.id }
         run_test!
       end
 
-      response '404', 'persona no encontrada' do
+      response "404", "persona no encontrada" do
         let(:id) { 9_999 }
         run_test!
       end
