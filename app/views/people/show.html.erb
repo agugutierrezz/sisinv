@@ -1,0 +1,55 @@
+<div class="page-head">
+  <div>
+    <%= link_to "← Volver", people_path, class: "back-link" %>
+    <h1 class="page-title"><%= [@persona["nombre"], @persona["apellido"]].join(" ") %></h1>
+  </div>
+  <div class="head-actions">
+    <%= link_to new_person_path(id: @persona["id"], nombre: @persona["nombre"], apellido: @persona["apellido"], identificador: @persona["identificador"]), class: "btn" do %>Editar<% end %>
+    <%= link_to person_path(@persona["id"]), class:"btn btn-ghost",
+          data:{ turbo_method: :delete, turbo_confirm: "¿Eliminar/archivar esta persona?" } do %>
+      Eliminar
+    <% end %>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:14px;">
+  <div class="person-row">
+    <div class="avatar"><span>👤</span></div>
+    <div>
+      <div style="font-size:16px; font-weight:700;"><%= [@persona["nombre"], @persona["apellido"], identificador: @persona["identificador"]].join(" ") %></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-head">
+  <h3>Historial de artículos</h3>
+</div>
+
+<% if @articulos_historial.blank? %>
+  <div class="card"><p class="muted">Sin historial de artículos.</p></div>
+<% else %>
+  <div class="cards-grid">
+    <% @articulos_historial.each do |a| %>
+      <div class="card card-link article-card">
+        <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="card-title"><%= a["identificador"] %></div>
+            <div class="muted">
+              <%= a.dig("marca","nombre") %> · <%= a.dig("modelo","nombre") %> <%= a.dig("modelo","anio") %>
+            </div>
+          </div>
+            <span class="badge <%= a["archivado"] ? "" : (a["actual"] ? "badge-free" : "") %>">
+            <%= a["archivado"] ? "Archivado" : (a["actual"] ? "Actual" : "Histórico") %>
+            </span>
+        </div>
+
+        <div class="card-actions">
+          <%= link_to article_path(a["id"]), class:"icon-btn", title:"Ver", data:{turbo:false} do %>
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+            <span class="sr-only">Ver</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

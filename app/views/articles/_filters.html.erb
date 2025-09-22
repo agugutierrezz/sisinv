@@ -1,0 +1,40 @@
+<%= form_with url: articles_path, method: :get,
+              data: { controller: "filters", turbo_frame: "articles_list" } do %>
+  <div class="filters-row" style="grid-template-columns: repeat(5, minmax(0,1fr)); align-items:end;">
+
+    <div class="form-row">
+      <label>Marca</label>
+      <%= select_tag :marca_id,
+          options_from_collection_for_select(@marcas, :id, :nombre, params[:marca_id]),
+          include_blank: "Todas",
+          class: "select",
+          data: { filters_target: "brandSelect", action: "change->filters#onBrandChange" } %>
+    </div>
+
+    <div class="form-row">
+      <label>Modelo</label>
+      <%= select_tag :modelo_id,
+          options_from_collection_for_select(@modelos, :id, :nombre, params[:modelo_id]),
+          include_blank: "Todos",
+          class: "select",
+          data: { filters_target: "modelSelect", action: "change->filters#autosubmit" } %>
+    </div>
+
+    <div class="form-row">
+      <label>Fecha desde</label>
+      <%= date_field_tag :fecha_desde, params[:fecha_desde], class: "input",
+          data: { action: "change->filters#autosubmit" } %>
+    </div>
+
+    <div class="form-row">
+      <label>Fecha hasta</label>
+      <%= date_field_tag :fecha_hasta, params[:fecha_hasta], class: "input",
+          data: { action: "change->filters#autosubmit" } %>
+    </div>
+
+    <div class="form-actions" style="display:flex;align-items:center;gap:.5rem">
+      <button type="button" class="btn" data-action="filters#clear">Limpiar</button>
+      <span data-filters-target="loader" class="inline-loader hidden">Cargando…</span>
+    </div>
+  </div>
+<% end %>

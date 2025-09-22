@@ -1,0 +1,26 @@
+<div class="page-head">
+  <div>
+    <h1>Artículos</h1>
+    <p class="help">Gestiona todos los artículos del inventario.</p>
+  </div>
+  <div>
+    <%= link_to new_article_path, class: "btn btn-primary btn-with-icon" do %>
+      <span class="btn-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"/></svg>
+      </span>
+      Agregar Artículo
+    <% end %>
+  </div>
+</div>
+
+<%= render "filters" %>
+
+<turbo-frame id="articles_list">
+  <div class="cards-grid">
+    <%= render partial: "card", collection: @articulos, as: :articulo %>
+  </div>
+
+  <% if @articulos.blank? %>
+    <p class="muted" style="margin-top:8px">No se encontraron artículos con los filtros seleccionados.</p>
+  <% end %>
+</turbo-frame>

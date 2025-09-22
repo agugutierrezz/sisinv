@@ -2,14 +2,21 @@ class Api::V1::TransfersController < Api::V1::BaseController
   before_action :set_transferencia, only: [ :show, :update, :destroy ]
 
   def index
-    scope = Transferencia.includes(:articulo, :persona).all
+    scope = Transferencia.includes(:articulo, :persona)
     scope = scope.where(articulo_id: params[:articulo_id]) if params[:articulo_id].present?
     scope = scope.where(persona_id:  params[:persona_id])  if params[:persona_id].present?
 
     list, page, per = paginate(scope.order(fecha_inicio: :desc, id: :desc))
+
     render json: {
       data: list.map { |t|
-        t.slice(:id, :articulo_id, :persona_id, :fecha_inicio, :fecha_fin, :descripcion)
+        {
+          id: t.id,
+          fecha:       t.fecha_inicio,             # ← lo que muestra la UI
+          comentario:  t.descripcion,              # ← lo que muestra la UI
+          actual:      (t.fecha_fin.nil? && t.persona_id == t.articulo.persona_actual_id),
+          persona:     t.persona&.slice(:id, :nombre, :apellido)
+        }
       },
       meta: { page:, per:, total: scope.count }
     }
@@ -21,6 +28,7 @@ class Api::V1::TransfersController < Api::V1::BaseController
 
   def create
     articulo = Articulo.find(transfer_params[:articulo_id])
+    return render json: { error: "El artículo está archivado" }, status: :unprocessable_entity unless articulo.activo?
     persona  = Persona.find(transfer_params[:persona_id])
     inicio   = transfer_params[:fecha_inicio].presence || Time.current
 

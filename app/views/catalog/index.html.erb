@@ -1,0 +1,43 @@
+<div class="container" data-controller="catalog">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Catálogo</h1>
+      <p class="muted">Gestiona las marcas y modelos del sistema</p>
+    </div>
+  </div>
+
+  <div class="tabs-rail">
+    <div class="tabs-track">
+      <button type="button" class="tab-link <%= 'is-active' if @tab == 'brands' %>"
+              data-action="catalog#showBrands">Marcas</button>
+      <button type="button" class="tab-link <%= 'is-active' if @tab == 'models' %>"
+              data-action="catalog#showModels">Modelos</button>
+      <div class="tab-knob <%= @tab == 'models' ? 'to-right' : '' %>"></div>
+    </div>
+
+    <button class="btn btn-primary btn-with-icon"
+            data-action="catalog#openNew"
+            data-catalog-type-param="<%= @tab.singularize %>">
+      + Agregar <%= @tab == 'brands' ? 'Marca' : 'Modelo' %>
+    </button>
+  </div>
+
+  <!-- Grids -->
+  <div data-catalog-target="brandsSection" style="<%= 'display:none' if @tab == 'models' %>">
+    <div class="cards-grid">
+      <% @brands.each do |b| %>
+        <%= render "catalog/brand_card", b: b %>
+      <% end %>
+    </div>
+  </div>
+
+  <div data-catalog-target="modelsSection" style="<%= 'display:none' if @tab == 'brands' %>">
+    <div class="cards-grid">
+      <% @models.each do |m| %>
+        <%= render "catalog/model_card", m: m %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= render "catalog/modals" %>
+</div>

@@ -1,0 +1,7 @@
+<div class="container">
+  <h1 class="page-title">Agregar Artículo</h1>
+  <div class="card">
+    <%= render partial: "form",
+        locals: { url: articles_path, method: :post, submit_label: "Crear", } %>
+  </div>
+</div>
