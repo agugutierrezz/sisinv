@@ -107,20 +107,24 @@ class Api::V1::ArticlesController < Api::V1::BaseController
     show
   end
 
-
   def destroy
-    if @articulo.transferencias.exists? || @articulo.persona_actual_id.present?
-      # cerrar transferencia abierta, si existiera
-      if (abierta = Transferencia.find_by(articulo_id: @articulo.id, fecha_fin: nil))
-        abierta.update!(fecha_fin: Time.current, descripcion: [ abierta.descripcion, "(cerrada por archivado de artículo)" ].compact.join(" "))
+    if @articulo.transferencias.exists?
+      Transferencia.transaction do
+        if (abierta = @articulo.transferencias.find_by(fecha_fin: nil))
+          fin = Time.current
+          fin = [ fin, abierta.fecha_inicio ].max
+
+          nueva_desc = [ abierta.descripcion.presence,
+                        "cerrada por archivado de artículo" ].compact.join(" — ")
+
+          abierta.update!(fecha_fin: fin, descripcion: nueva_desc)
+        end
+        @articulo.update!(persona_actual: nil, activo: false)
       end
-      # desasignar y archivar
-      @articulo.update!(activo: false, persona_actual_id: nil)
-      head :no_content
     else
       @articulo.destroy!
-      head :no_content
     end
+    head :no_content
   end
 
 

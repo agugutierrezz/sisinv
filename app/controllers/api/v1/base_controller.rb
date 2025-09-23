@@ -1,7 +1,7 @@
 # Los controladores deben heredar de esta clase para JSON.
 
 class Api::V1::BaseController < ApplicationController
-  protect_from_forgery with: :null_session
+  skip_forgery_protection
   skip_before_action :require_authentication, raise: false
   before_action :authenticate_api!
 

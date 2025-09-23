@@ -8,11 +8,11 @@ class Api::V1::ModelsController < Api::V1::BaseController
     scope = scope.where(anio: params[:anio]) if params[:anio].present?
 
     scope = scope
-      .select("modelos.*, COUNT(articulos.id) AS articulos_count")
+      .left_joins(:articulos)
+      .select("modelos.*, COALESCE(SUM(CASE WHEN articulos.activo THEN 1 ELSE 0 END), 0) AS articulos_count")
       .group("modelos.id")
 
     total = scope.except(:select, :order).distinct.count("modelos.id")
-
     list, page, per = paginate(scope.order("marcas.nombre ASC, modelos.nombre ASC, modelos.anio ASC").references(:marca))
 
     render json: {
@@ -36,7 +36,7 @@ class Api::V1::ModelsController < Api::V1::BaseController
       nombre: m.nombre,
       anio: m.anio,
       marca: { id: m.marca_id, nombre: m.marca.nombre },
-      articulos_count: m.articulos.count
+      articulos_count: m.articulos.where(activo: true).count
     }
   end
 
@@ -51,8 +51,12 @@ class Api::V1::ModelsController < Api::V1::BaseController
   end
 
   def destroy
-    @modelo.destroy! # restrict evita borrar si hay artículos
-    head :no_content
+    if @modelo.destroy
+      head :no_content
+    else
+      render json: { errors: @modelo.errors.full_messages.presence || [ "No se puede eliminar: existen registros asociados" ] },
+            status: :unprocessable_entity
+    end
   end
 
   private
