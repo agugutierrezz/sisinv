@@ -61,7 +61,7 @@ Para levantar el proyecto utilicé WSL (Subsistema de Windows para Linux) con Ub
 **4. Instalar dependencias del proyecto y preparar la base de datos**
 - `bundle install`
 - `bin/rails db:prepare`
-    #### Importante
+#### Importante
 Al final de la ejecución de `bin/rails db:prepare`, se imprime en pantalla un **Admin API token**. Este token es necesario para autorizar el uso de la API.  
 En caso de no haberlo guardado, ejecutar:
 - `bin/rails runner 'puts User.find_by(email_address: "admin@example.com")&.api_token'`
@@ -101,8 +101,8 @@ En caso de no haberlo guardado, ejecutar:
 
 **Resumen de relaciones**
 - Relación Artículo (1) a (0..1) Persona: la persona está identificada como portador actual, el cual puede ser nulo al momento de crear un artículo.
-- Relación Artículo (1) a (1) Modelo y Modelo(*) a (1) Marca: utilizo modelo y marca como entidad en vez de un atributo para permitir filtros y CRUD de modelos y marcas.
-- Relación Artículo (1) a (*) Transferencia y Transferencia (*) a (1) Persona: la entidad transferencia actúa como clase intermedia que permite que muchas personas tengan muchos artículos a lo largo del tiempo, permitiendo guardar un historial.
+- Relación Artículo (1) a (1) Modelo y Modelo(\*) a (1) Marca: utilizo modelo y marca como entidad en vez de un atributo para permitir filtros y CRUD de modelos y marcas.
+- Relación Artículo (1) a (\*) Transferencia y Transferencia (\*) a (1) Persona: la entidad transferencia actúa como clase intermedia que permite que muchas personas tengan muchos artículos a lo largo del tiempo, permitiendo guardar un historial.
 
 **Reglas de Negocio**
 - **Una transferencia abierta por artículo:**
