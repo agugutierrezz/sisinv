@@ -9,7 +9,7 @@
 - [Mockups](#mockups)
 - [Planificación](#planificacion)
 - [API Swagger](#api-swagger)
-- [Ejemplos de Request/Response](#api-swagger)
+- [Ejemplos de Request/Response](#ejemplos-de-requestresponse)
 ---
 
 ## Introducción
@@ -210,6 +210,7 @@ Los Mockups fueron implementados en Figma mediante su herramienta de Inteligenci
     - **Modelo de datos**
     - **Registro de transferencias**
     - **Validaciones básicas**
+> Las pruebas fueron implementadas con RSpec. Para ejecutarlas se utiliza el comando: `bundle exec rspec --format progress`. Ya están añadidas al pipeline de integración continua.
 
 - [x] **9. Documentar el proceso** incluyendo instrucciones, decisiones de diseño y generación de seeds.
   - Cualquiera puede levantar el proyecto siguiendo el **README**.
