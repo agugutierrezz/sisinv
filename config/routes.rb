@@ -1,26 +1,58 @@
 Rails.application.routes.draw do
-  resource :session
+  root "dashboard#index"
+  get "catalog", to: "catalog#index"
+
+  resources :articles do
+    collection { get :lookup }
+  end
+
+  resources :transfers, only: [ :index, :new, :create ]
+
+  resources :brands, only: [ :index, :new, :create ] do
+    collection do
+      get  :list
+      post :create_modal
+    end
+    member do
+      patch  :update
+      delete :destroy
+    end
+  end
+
+  resources :models, only: [ :index, :new, :create ] do
+    collection do
+      get  :for_brand
+      post :create_modal
+    end
+    member do
+      patch  :update
+      delete :destroy
+    end
+  end
+
+  resources :people do
+    collection do
+      get  :lookup
+      post :create_modal
+    end
+  end
+
+  resource  :session
+
   resources :passwords, param: :token
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
-
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
   namespace :api do
     namespace :v1 do
-      # En una API JSON no usamos páginas de formulario (new, edit), solo los endpoints que reciben/mandan JSON
-      resources :people,    except: [ :new, :edit ]
+      resources :people, except: [ :new, :edit ] do
+        member { get :articles }
+      end
       resources :articles,  except: [ :new, :edit ]
       resources :transfers, except: [ :new, :edit ]
       resources :brands,    except: [ :new, :edit ]
       resources :models,    except: [ :new, :edit ]
     end
   end
+
+  mount Rswag::Ui::Engine => "/api-docs"
+  mount Rswag::Api::Engine => "/api-docs"
 end

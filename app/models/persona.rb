@@ -2,5 +2,6 @@ class Persona < ApplicationRecord
   has_many :transferencias, dependent: :restrict_with_error
   has_many :articulos, foreign_key: :persona_actual_id
   validates :nombre, :apellido, presence: true
+  validates :identificador, presence: true, uniqueness: true
   scope :activos, -> { where(archivado: false) }
 end

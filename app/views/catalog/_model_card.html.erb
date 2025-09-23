@@ -1,0 +1,28 @@
+<!-- app/views/catalog/model_card.html.erb -->
+<div class="card">
+  <div class="card-head">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="badge-icon">📦</span>
+      <strong><%= m["nombre"] %></strong>
+    </div>
+  </div>
+
+  <p class="muted" style="margin:4px 0;">Marca: <%= m.dig("marca","nombre") %></p>
+  <p class="muted" style="margin:4px 0;">Artículos registrados: <%= m["articulos_count"] %></p>
+
+  <div class="card-actions">
+    <button class="btn btn-ghost btn-with-icon"
+            data-action="catalog#openEdit"
+            data-catalog-type-param="model"
+            data-catalog-id-param="<%= m['id'] %>"
+            data-catalog-name-param="<%= m['nombre'] %>"
+            data-catalog-year-param="<%= m['anio'] %>"
+            data-catalog-brand-id-param="<%= m.dig('marca','id') %>">✏️ Editar</button>
+
+    <button class="btn btn-danger btn-with-icon"
+            data-action="catalog#confirmDelete"
+            data-catalog-type-param="model"
+            data-catalog-id-param="<%= m['id'] %>"
+            data-catalog-articles-count-param="<%= m['articulos_count'] %>">🗑️ Eliminar</button>
+  </div>
+</div>

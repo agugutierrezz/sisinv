@@ -1,0 +1,25 @@
+<!-- app/views/catalog/brand_card.html.erb -->
+<div class="card">
+  <div class="card-head">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="badge-icon">🏷️</span>
+      <strong><%= b["nombre"] %></strong>
+    </div>
+  </div>
+
+  <p class="muted" style="margin:8px 0;">Modelos registrados: <%= b["modelos_count"] %></p>
+
+  <div class="card-actions">
+    <button class="btn btn-ghost btn-with-icon"
+            data-action="catalog#openEdit"
+            data-catalog-type-param="brand"
+            data-catalog-id-param="<%= b['id'] %>"
+            data-catalog-name-param="<%= b['nombre'] %>">✏️ Editar</button>
+
+    <button class="btn btn-danger btn-with-icon"
+            data-action="catalog#confirmDelete"
+            data-catalog-type-param="brand"
+            data-catalog-id-param="<%= b['id'] %>"
+            data-catalog-models-count-param="<%= b['modelos_count'] %>">🗑️ Eliminar</button>
+  </div>
+</div>

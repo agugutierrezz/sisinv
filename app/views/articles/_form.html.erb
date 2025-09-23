@@ -1,0 +1,170 @@
+<div data-controller="modal-form" data-modal-form-models-url-value="/models/for_brand">
+
+  <%= form_with url: url, method: method, local: true do |f| %>
+    <div class="form-grid" style="grid-template-columns:1fr;">
+
+      <!-- Identificador -->
+      <div class="form-row">
+        <label class="required">Identificador</label>
+        <%= text_field_tag "article[identificador]", @article.identificador,
+              class:"input", placeholder:"Ej: XPS13-001",
+              required:true, pattern:"[A-Za-z0-9_-]+",
+              title:"Sólo letras, números, guiones y guiones bajos" %>
+      </div>
+
+      <!-- Marca / Modelo -->
+      <div class="form-grid" style="grid-template-columns:1fr 1fr; gap:12px;">
+
+        <%# ======= Marca (no usar @article.marca) ======= %>
+        <% selected_brand_id =
+             @article.try(:marca_id) ||                 # en "new" (OpenStruct)
+             @article.try(:modelo)&.marca_id ||         # en "edit" (AR: modelo.marca_id)
+             params[:marca_id]                          # fallback de modal
+        %>
+        <div class="form-row">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <label class="required" style="margin:0;">Marca</label>
+            <button type="button" class="btn btn-ghost btn-with-icon"
+                    data-action="click->modal-form#open"
+                    data-modal-form-type-value="brand">
+              + Agregar marca
+            </button>
+          </div>
+
+          <%= select_tag "article[marca_id]",
+                options_for_select(@marcas.map { |m| [m.nombre, m.id] }, selected_brand_id),
+                include_blank:"Seleccionar", class:"select", required:true,
+                data: { action: "change->modal-form#onBrandChange" } %>
+
+          <small class="help">Seleccioná una marca o creá una nueva.</small>
+        </div>
+
+        <% selected_model_id =
+             @article.try(:modelo_id) ||                # en "new"
+             @article.try(:modelo)&.id ||               # en "edit"
+             params[:modelo_id]
+        %>
+        <div class="form-row">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <label class="required" style="margin:0;">Modelo</label>
+            <button type="button" class="btn btn-ghost btn-with-icon"
+                    data-action="click->modal-form#open"
+                    data-modal-form-type-value="model">
+              + Agregar modelo
+            </button>
+          </div>
+
+          <%= select_tag "article[modelo_id]", options_for_select(@modelos.map { |m| ["#{m.nombre} #{m.anio}".strip, m.id] }, 
+          @article.try(:modelo)&.id), include_blank:"Seleccionar", class:"select", required:true, 
+          data: { selected: @article.try(:modelo)&.id } %>
+          <small class="help">Seleccioná un modelo o creá uno nuevo.</small>
+        </div>
+      </div>
+
+      <!-- Fecha de ingreso -->
+      <div class="form-row">
+        <label class="required">Fecha de ingreso</label>
+        <%= date_field_tag "article[fecha_ingreso]", @article.fecha_ingreso, class:"input", required:true %>
+      </div>
+
+      <!-- Portador -->
+      <% can_edit_carrier = @article.try(:id).blank? || @article.try(:persona_actual).blank? %>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="form-row">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <label style="margin:0;">Portador (opcional)</label>
+
+            <% if can_edit_carrier %>
+              <!-- Alta o sin portador: se puede crear uno nuevo desde modal -->
+              <button type="button" class="btn btn-ghost btn-with-icon"
+                      data-action="click->modal-form#open"
+                      data-modal-form-type-value="person">
+                + Agregar portador
+              </button>
+            <% else %>
+              <!-- Ya tiene portador: sugerí transferencia -->
+              <%= link_to "+ Transferir Artículo",
+                    new_transfer_path(article_id: @article.id),
+                    class: "btn btn-ghost btn-with-icon" %>
+            <% end %>
+          </div>
+
+          <%= select_tag "article[persona_actual_id]",
+                options_for_select([["Sin asignar",""], *(@personas||[]).map{ |p| ["#{p.nombre} #{p.apellido}", p.id]}],
+                                   @article.try(:persona_actual)&.id),
+                class:"select",
+                disabled: !can_edit_carrier %>
+
+          <% if can_edit_carrier %>
+            <small class="help">Elegí una persona existente o creá una nueva.</small>
+          <% else %>
+            <small class="help">
+              Este artículo ya tiene portador. Para cambiarlo, registrá una
+              <%= link_to "transferencia", new_transfer_path(article_id: @article.id), class:"nav-link", style:"padding:0" %>.
+            </small>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="form-actions" style="margin-top:14px">
+        <%= submit_tag submit_label, class: "btn btn-primary" %>
+        <%= link_to "Volver", (@article&.id ? article_path(@article.id) : articles_path),
+              class: "btn btn-ghost" %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Modal Marca -->
+  <dialog class="card" data-modal-form-target="brandModal">
+    <h3 style="margin-top:0;">Nueva marca</h3>
+    <form data-action="submit->modal-form#createBrand" style="display:grid;gap:10px;">
+      <label class="required">Nombre</label>
+      <input type="text" name="nombre" class="input" required>
+      <div class="form-actions">
+        <button type="button" class="btn" data-action="modal-form#close">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal Modelo -->
+  <dialog class="card" data-modal-form-target="modelModal">
+    <h3 style="margin-top:0;">Nuevo modelo</h3>
+    <form data-action="submit->modal-form#createModel" style="display:grid;gap:10px;">
+      <label class="required">Marca</label>
+      <select name="marca_id" class="select" required data-modal-form-target="brandSelectInModel"></select>
+
+      <label class="required">Nombre</label>
+      <input type="text" name="nombre" class="input" required>
+
+      <label>Año</label>
+      <input type="number" name="anio" class="input" min="1980" max="2100">
+
+      <div class="form-actions">
+        <button type="button" class="btn" data-action="modal-form#close">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal Persona -->
+  <dialog class="card" data-modal-form-target="personModal">
+    <h3 style="margin-top:0;">Nuevo portador</h3>
+    <form data-action="submit->modal-form#createPerson" style="display:grid;gap:10px;">
+      <label class="required">Nombre</label>
+      <input type="text" name="nombre" class="input" required>
+
+      <label class="required">Apellido</label>
+      <input type="text" name="apellido" class="input" required>
+
+      <label class="required">Identificador (DNI)</label>
+      <input type="text" name="identificador" class="input" required/>
+
+      <div class="form-actions">
+        <button type="button" class="btn" data-action="modal-form#close">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+</div>

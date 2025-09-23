@@ -1,0 +1,92 @@
+<div class="container" data-controller="transfer-new"
+     data-transfer-new-articles-value="<%= raw(@articles.to_json) %>"
+     data-transfer-new-people-value="<%= raw(@people.to_json) %>">
+
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Nueva Transferencia</h1>
+      <p class="muted">Registra el movimiento de un artículo entre portadores</p>
+    </div>
+  </div>
+
+  <%= form_with url: transfers_path, method: :post, local: true do %>
+    <div data-controller="transfer-form"
+        data-transfer-form-articles-url-value="<%= lookup_articles_path %>"
+        data-transfer-form-people-url-value="<%= lookup_people_path %>">
+
+    <div class="form-row">
+    <label>Identificador *</label>
+
+    <input
+        type="text"
+        class="input"
+        id="article_picker"
+        placeholder="Selecciona un artículo"
+        value="<%= @prefill[:ident_text] %>"
+        data-transfer-form-target="articleInput"
+        data-action="focus->transfer-form#showArticles input->transfer-form#showArticles keydown.enter->transfer-form#preventSubmit" />
+
+    <input
+        type="hidden"
+        name="transfer[articulo_id]"
+        id="transfer_articulo_id"
+        value="<%= @prefill[:articulo_id] %>"
+        data-transfer-form-target="articleId" />
+
+    <div class="ta-list hidden" data-transfer-form-target="articleResults"></div>
+    </div>
+
+    <div class="form-row">
+    <label>Desde (Portador Actual)</label>
+    <input id="from_current_holder" class="input" value="<%= @prefill[:desde_text] %>" readonly>
+    </div>
+
+    <div class="form-row">
+    <label>Hacia (Nuevo Portador) *</label>
+    <input type="text" class="input"
+            placeholder="Selecciona destino"
+            data-transfer-form-target="personInput"
+            data-action="focus->transfer-form#showPeople input->transfer-form#showPeople keydown.enter->transfer-form#preventSubmit" />
+    <input type="hidden" name="transfer[persona_id]" data-transfer-form-target="personId" />
+    <div class="ta-list hidden" data-transfer-form-target="personResults"></div>
+    </div>
+
+    <div class="form-row">
+        <label>Fecha de Inicio *</label>
+        <input type="date" class="input" name="transfer[fecha_inicio]" value="<%= Date.current %>">
+    </div>
+
+    <div class="form-row">
+        <label>Notas (opcional)</label>
+        <textarea class="textarea" name="transfer[descripcion]" placeholder="Agregar comentarios..."></textarea>
+    </div>
+
+    <div class="form-actions">
+        <%= link_to "Cancelar", articles_path, class: "btn" %>
+        <button class="btn btn-primary">Registrar Transferencia</button>
+    </div>
+    </div>
+  <% end %>
+
+  <!-- Modal: Alta rápida de persona -->
+  <dialog class="card" data-transfer-new-target="personModal">
+    <h3>Nueva persona</h3>
+    <form data-transfer-new-target="personForm" data-action="submit->transfer-new#createPerson" method="dialog">
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="required">Nombre</label>
+          <input class="input" type="text" data-transfer-new-target="personFirst" required>
+        </div>
+        <div class="form-row">
+          <label class="required">Apellido</label>
+          <input class="input" type="text" data-transfer-new-target="personLast" required>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" data-action="transfer-new#closePersonModal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Crear y seleccionar</button>
+      </div>
+    </form>
+  </dialog>
+</div>
+

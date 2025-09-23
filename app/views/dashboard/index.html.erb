@@ -1,0 +1,64 @@
+<div class="container">
+  <h1 class="page-title">Panel de Control</h1>
+  <p class="page-subtitle">Resumen general del sistema de inventario</p>
+
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total de Artículos (Activos)</div>
+      <div class="kpi-value"><%= number_with_delimiter(@articles_count) %></div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Artículos Disponibles</div>
+      <div class="kpi-value"><%= number_with_delimiter(@articles_available) %></div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Total de Personas</div>
+      <div class="kpi-value"><%= number_with_delimiter(@people_count) %></div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Transferencias</div>
+      <div class="kpi-value"><%= number_with_delimiter(@transfers_count) %></div>
+    </div>
+  </section>
+
+  <section class="qa-section">
+    <h2>Acciones Rápidas</h2>
+
+    <div class="qa-grid">
+      <div class="qa-item">
+        <div>
+          <div class="qa-title">Agregar Artículo</div>
+          <div class="qa-desc">Registrar un nuevo artículo en el inventario</div>
+        </div>
+        <%= link_to "Ir", new_article_path, class: "btn btn-circle" %>
+      </div>
+
+      <div class="qa-item">
+        <div>
+          <div class="qa-title">Ver Artículos</div>
+          <div class="qa-desc">Explorar todos los artículos del inventario</div>
+        </div>
+        <%= link_to "Ir", articles_path, class: "btn btn-circle" %>
+      </div>
+
+      <div class="qa-item">
+        <div>
+          <div class="qa-title">Agregar Persona</div>
+          <div class="qa-desc">Registrar una nueva persona en el sistema</div>
+        </div>
+        <%= link_to "Ir", new_person_path, class: "btn btn-circle" %>
+      </div>
+
+      <div class="qa-item">
+        <div>
+          <div class="qa-title">Ver Personas</div>
+          <div class="qa-desc">Explorar todas las personas registradas</div>
+        </div>
+        <%= link_to "Ir", people_path, class: "btn btn-circle" %>
+      </div>
+    </div>
+  </section>
+</div>

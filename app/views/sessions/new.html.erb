@@ -1,11 +1,22 @@
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+<div class="card" style="max-width:420px; margin: 60px auto;">
+  <h1 style="margin:0 0 12px 0;">Iniciar sesión</h1>
+  <p class="help" style="margin-top:-6px;">Accedé para gestionar inventario</p>
 
-<%= form_with url: session_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-  <%= form.submit "Sign in" %>
-<% end %>
-<br>
+  <%= form_with url: session_path, method: :post, data: { turbo: true } do %>
+    <div class="form-grid" style="margin-top:14px;">
+      <div class="form-row">
+        <label for="email_address">Usuario o Email</label>
+        <%= email_field_tag :email_address, params[:email_address], class: "input", autofocus: true, required: true %>
+      </div>
 
-<%= link_to "Forgot password?", new_password_path %>
+      <div class="form-row">
+        <label for="password">Contraseña</label>
+        <%= password_field_tag :password, nil, class: "input", required: true %>
+      </div>
+
+      <div class="form-actions" style="margin-top:6px;">
+        <%= submit_tag "Entrar", class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_17_140812) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_22_000000) do
   create_table "articulos", force: :cascade do |t|
     t.string "identificador", null: false
     t.date "fecha_ingreso", null: false
@@ -18,6 +18,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_17_140812) do
     t.integer "persona_actual_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "activo", default: true, null: false
+    t.index ["activo"], name: "index_articulos_on_activo"
     t.index ["identificador"], name: "index_articulos_on_identificador", unique: true
     t.index ["modelo_id"], name: "index_articulos_on_modelo_id"
     t.index ["persona_actual_id"], name: "index_articulos_on_persona_actual_id"
@@ -46,7 +48,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_17_140812) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "archivado", default: false, null: false
+    t.string "identificador", null: false
     t.index ["archivado"], name: "index_personas_on_archivado"
+    t.index ["identificador"], name: "index_personas_on_identificador", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|

@@ -1,0 +1,11 @@
+<div class="container">
+  <%= link_to "← Volver",
+        (request.referer.presence || article_path(@article.id) || articles_path),
+        class: "nav-link", style: "padding-left:0", data: { turbo: false } %>
+
+  <h1 class="page-title">Editar Artículo</h1>
+  <div class="card">
+    <%= render partial: "form",
+          locals: { url: article_path(@article.id), method: :put, submit_label: "Guardar Cambios" } %>
+  </div>
+</div>
