@@ -43,6 +43,7 @@ Para levantar el proyecto utilicé WSL (Subsistema de Windows para Linux) con Ub
 - Al abrir “Ubuntu”, elegir usuario y contraseña (Linux).
 
 **1. Dependencias base - Preparar Ubuntu**
+Una vez dentro de Ubuntu, ejecutar en la terminal:
 - `sudo apt update`
 - `sudo apt install -y git curl build-essential pkg-config \ libssl-dev zlib1g-dev libreadline-dev libyaml-dev libxml2-dev \ libxslt1-dev libffi-dev libgdbm-dev libncurses5-dev libgmp-dev \ sqlite3 libsqlite3-dev`
 
@@ -62,9 +63,9 @@ Para levantar el proyecto utilicé WSL (Subsistema de Windows para Linux) con Ub
 - `bundle install`
 - `bin/rails db:prepare`
 #### Importante
-Al final de la ejecución de `bin/rails db:prepare`, se imprime en pantalla un **Admin API token**. Este token es necesario para autorizar el uso de la API.  
-En caso de no haberlo guardado, ejecutar:
-- `bin/rails runner 'puts User.find_by(email_address: "admin@example.com")&.api_token'`
+El comando `bin/rails db:prepare` ejecuta automáticamente el archivo `seeds.rb` que se encarga de cargar datos mínimos para probar la aplicación. Al final de la ejecución se imprime en pantalla un **Admin API token**. Este token es necesario para autorizar el uso de la API.
+
+> En caso de no haberlo guardado, ejecutar: `bin/rails runner 'puts User.find_by(email_address: "admin@example.com")&.api_token'`
 
 **5. Guardar API token y levantar el servidor**
 
