@@ -67,7 +67,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage
           path: coverage/
@@ -89,7 +89,7 @@ jobs:
       - name: Generate Swagger (OpenAPI)
         run: bundle exec rake rswag
       - name: Upload swagger.yaml
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: swagger-v1
           path: swagger/v1/swagger.yaml
