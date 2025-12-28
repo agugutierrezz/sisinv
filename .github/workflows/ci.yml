@@ -55,7 +55,7 @@ jobs:
       # Si algún día agregás system specs con Capybara+Selenium,
       # esto instala Chrome estable en el runner:
       - name: Setup Chrome (for future system specs)
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
 
       - name: Prepare DB
         run: |
